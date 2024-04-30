@@ -1,2 +1,2 @@
 # Customers-Products-Analysis-Using-SQL
-The objective of this project is to extract information for the purpose of decision-making by conducting an analysis of data taken from a database including sales records for scale model vehicles.
+The objective of this project is to utilize SQL to retrieve data from a database in order to facilitate decision-making and do a comprehensive data analysis. The database stores data pertaining to sales records for scale model cars.
