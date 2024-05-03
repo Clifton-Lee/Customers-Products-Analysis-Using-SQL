@@ -1,6 +1,6 @@
 -- Customer & Product Analysis Using SQL 
 
--- In this analysis we are looking to answer three questions using byextracting data from the `stores` Database
+-- In this analysis, we are looking to answer three questions using by extracting data from the `stores` Database
 
 /*
  stores Database Schema Design 
@@ -60,8 +60,21 @@ SELECT 'Offices', 9 ,COUNT(*)
   
 
 -- Question 1: Which Products Should We Order More of or Less of?
+-- ANS: The Products we should order more or less of are those with high product performance that are on the brink of being out of stock.
 
---- First I will compute the low stock of each product 
+--- Here I am writing a query to compute the low stock for each product using a correlated subquery.
+SELECT p.productCode,
+       p.productName,
+       ROUND((SELECT SUM(quantityOrdered) * 1.0
+                FROM orderdetails AS od
+               WHERE od.productCode = p.productCode)
+             / quantityInStock, 2) AS low_stock
+  FROM products AS p
+ GROUP BY p.productCode, p.productName
+ ORDER BY low_stock DESC
+ LIMIT 10;
+
+/* We could also write this query using joins to achieve the same result. 
 SELECT p.productCode,
        p.productName,
        ROUND(SUM(quantityOrdered) / quantityInStock, 2) AS low_stock
@@ -71,4 +84,26 @@ SELECT p.productCode,
  GROUP BY p.productCode, p.productName
  ORDER BY low_stock DESC
  LIMIT 10;
+*/
+
+-- I will combine the previous query with a Common Table Expression (CTE) of the Top Ten Product Performance to display priority products for restocking using the IN operator.
+
+WITH top_10_product_performance AS (     
+SELECT productCode
+  FROM orderdetails
+ GROUP BY productCode
+ ORDER BY SUM(quantityOrdered * priceEach) DESC
+ LIMIT 10
+ )
+ 
+SELECT p.productCode,
+       p.productName,
+       ROUND((SELECT SUM(quantityOrdered) * 1.0
+                FROM orderdetails AS od
+               WHERE od.productCode = p.productCode)
+             / quantityInStock, 2) AS low_stock
+  FROM products AS p
+ WHERE p.productCode IN top_10_product_performance
+ GROUP BY p.productCode, p.productName
+ ORDER BY low_stock DESC
        
