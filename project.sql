@@ -22,39 +22,25 @@ SELECT 'Customers' AS table_name,
        13 AS number_of_attributes,
        COUNT(*) As number_of_rows
   FROM customers
-  
  UNION ALL 
-
 SELECT 'Products', 9, COUNT(*) 
   FROM products
-
  UNION ALL
- 
 SELECT 'ProductLines', 4 ,COUNT(*) 
   FROM productlines
-  
 UNION ALL 
-
 SELECT 'Orders', 7 ,COUNT(*) 
   FROM orders
-  
-UNION ALL 
-
+UNION ALL
 SELECT 'OrderDetails', 5 ,COUNT(*) 
   FROM orderdetails
-  
 UNION ALL 
-
 SELECT 'Payments', 4 ,COUNT(*) 
   FROM payments
-  
 UNION ALL 
-  
 SELECT 'Employees', 8 ,COUNT(*) 
   FROM employees
-  
-UNION ALL 
-
+UNION ALL
 SELECT 'Offices', 9 ,COUNT(*) 
   FROM offices
   
@@ -106,4 +92,50 @@ SELECT p.productCode,
  WHERE p.productCode IN top_10_product_performance
  GROUP BY p.productCode, p.productName
  ORDER BY low_stock DESC
+
+-- Question 2: How Should We Match Marketing and Communication Strategies to Customer Behavior?
+/*
+This involves categorizing customers: finding the VIP (very important person) customers and those who are less engaged.
+- VIP customers bring in the most profit for the store.
+- Less engaged customers bring in less profit.
+*/ 
+-- Here I created a CTE that will have a list of all customer and their profit 
+WITH customer_profit AS (
+SELECT customerNumber, 
+       ROUND(SUM(quantityOrdered * (priceEach - buyPrice)),2) AS profit
+  FROM orders AS o
+  LEFT JOIN orderdetails AS od
+    ON od.orderNumber = o.orderNumber
+  LEFT JOIN products AS p
+    ON p.productCode = od.productCode
+ GROUP BY customerNumber
+ ORDER BY profit DESC
+)
+-- Here I found the Top 5 VIP customers 
+SELECT contactLastName,
+       contactFirstName,
+       city,
+       country, 
+       profit
+  FROM customers
+  JOIN customer_profit
+    ON customer_profit.customerNumber = customers.customerNumber
+ ORDER BY profit DESC
+ LIMIT 5;
+
+--- Here are the TOP 5 least engaging customers 
+SELECT contactLastName,
+       contactFirstName,
+       city,
+       country, 
+       profit
+  FROM customers
+  JOIN customer_profit
+    ON customer_profit.customerNumber = customers.customerNumber
+ ORDER BY profit 
+ LIMIT 5;
+
+--- Question 3: How Much Can We Spend on Acquiring New Customers?
+
+
        
