@@ -137,5 +137,23 @@ SELECT contactLastName,
 
 --- Question 3: How Much Can We Spend on Acquiring New Customers?
 
+-- I created a CTE detailing the profit each customer has contributed since their lifetime with the company. 
+-- Hence finding the average customer profit will tell the Lifetime Value of a customer. 
+WITH customer_profit AS (
+SELECT customerNumber, 
+       ROUND(SUM(quantityOrdered * (priceEach - buyPrice)),2) AS profit
+  FROM orders AS o
+  LEFT JOIN orderdetails AS od
+    ON od.orderNumber = o.orderNumber
+  LEFT JOIN products AS p
+    ON p.productCode = od.productCode
+ GROUP BY customerNumber
+ ORDER BY profit DESC
+)
+-- This figure will tell how much the company need to spend on acquiring new customers 
+SELECT AVG(profit) AS avg_profit
+  FROM customer_profit;
+
+
 
        
